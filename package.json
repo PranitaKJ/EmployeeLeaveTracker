@@ -8,7 +8,16 @@
     "app/employee",
     "app/leaves",
     "app/state",
-    "app/city"
+    "app/city",
+    "app/employee1",
+    "app/employee2",
+    "app/employee3",
+    "app/employee1",
+    "app/employee1",
+    "app/state",
+    "app/leaves",
+    "app/leaves",
+    "app/leaves1"
   ],
   "devDependencies": {
     "@sap/ux-specification": "^1.120.6"

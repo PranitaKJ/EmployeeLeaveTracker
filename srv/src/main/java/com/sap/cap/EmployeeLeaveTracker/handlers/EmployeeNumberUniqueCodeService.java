@@ -1,5 +1,6 @@
 package com.sap.cap.EmployeeLeaveTracker.handlers;
 
+import java.util.List;
 import java.util.Optional;
 import com.sap.cds.services.handler.EventHandler;
 
@@ -10,11 +11,12 @@ import com.sap.cds.Result;
 import com.sap.cds.ql.Insert;
 import com.sap.cds.ql.Select;
 import com.sap.cds.ql.Update;
-import com.sap.cds.ql.cqn.CqnInsert;
 import com.sap.cds.ql.cqn.CqnSelect;
 import com.sap.cds.ql.cqn.CqnUpdate;
-import com.sap.cds.ql.cqn.CqnUpsert;
+//import com.sap.cds.ql.cqn.CqnUpsert;
+import com.sap.cds.ql.cqn.CqnInsert;
 import com.sap.cds.services.cds.CdsCreateEventContext;
+import com.sap.cds.services.cds.CdsDeleteEventContext;
 import com.sap.cds.services.cds.CqnService;
 import com.sap.cds.services.handler.annotations.After;
 import com.sap.cds.services.handler.annotations.Before;
@@ -41,7 +43,6 @@ public class EmployeeNumberUniqueCodeService implements EventHandler{
 
     @Before(event = CqnService.EVENT_CREATE, entity = Employee_.CDS_NAME)
     public void beforeCreate(CdsCreateEventContext context, Employee view) {
-    System.out.print("inside event");
         CqnSelect select = Select.from(EmployeeNumberUniqueCode_.class)
                    .orderBy(o -> o.sequence().desc()).limit(1);
  
@@ -62,6 +63,8 @@ public class EmployeeNumberUniqueCodeService implements EventHandler{
 
                    CqnInsert insert = Insert.into(EmployeeNumberUniqueCode_.class).entry(code);
                    db.run(insert).first(EmployeeNumberUniqueCode_.class);
+                  // CqnUpsert insert = Upsert.into(EmployeeNumberUniqueCode_.class).entry(code);
+                   //db.run(insert).first(EmployeeNumberUniqueCode_.class);
  
                    
     }
@@ -72,8 +75,8 @@ public class EmployeeNumberUniqueCodeService implements EventHandler{
         Result result = db.run(select);
         
         Optional<Employee> optional = result.first(Employee.class);
-       
-        CqnSelect select1 = Select.from(State_.class).where(o->o.name().eq(optional.get().getState().getName()));
+
+        CqnSelect select1 = Select.from(State_.class).where(o->o.stateid().eq(optional.get().getStateStateid()));
         Result result1 = db.run(select1);
         Optional<State> optional1 = result1.first(State.class);  
 
@@ -89,5 +92,35 @@ public class EmployeeNumberUniqueCodeService implements EventHandler{
         }
     
     }
+//Delete
+@Before(event = CqnService.EVENT_DELETE, entity = Employee_.CDS_NAME)
+public void onDelete(CdsDeleteEventContext context) {
+    Select<?> select = Select.from(context.getCqn().ref());
+    context.getCqn().where().ifPresent(select::where);
+  
+    
 
+        
+       /*     CqnSelect sel = Select.from(context.getCqn().ref()).columns(e -> e.state_stateid()).where(e -> e.ID().eq(empId));
+        Result result = db.run(sel);
+    Optional<Employee> optional = result.first(Employee.class);  
+
+    CqnSelect select1 = Select.from(State_.class).where(o->o.stateid().eq(optional.get().getStateStateid()));
+    Result result1 = db.run(select1);
+    Optional<State> optional1 = result1.first(State.class);  
+
+    if (optional1.isPresent()) {
+        State state = State.create();
+        state.setEmpCount(optional1.get().getEmpCount()-1);
+        state.setStateid(optional1.get().getStateid());
+
+        CqnUpdate update = Update.entity(State_.class).entry(state);
+
+        db.run(update);
+
+    }*/
+        
+    
+
+}
 }
